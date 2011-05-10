@@ -4,7 +4,8 @@ class V8Views
 
   class TemplateNotFoundError < StandardError; end
 
-  MUSTACHE_PATH = __FILE__.sub(/\.rb$/,'/mustache.js')
+  MUSTACHE_PATH   = __FILE__.sub(/\.rb$/,'/mustache.js')
+  HANDLEBARS_PATH = __FILE__.sub(/\.rb$/,'/handlebars.js')
 
   DEFAULT_OPTIONS = {
     :root  => File.expand_path(File.join(File.dirname(__FILE__), '..')),
@@ -29,7 +30,7 @@ class V8Views
   def render json
     context.eval "TEMPLATES.render(#{json});"
   end
-
+  
   def context
     @context or begin
       @context = V8::Context.new
