@@ -20,9 +20,9 @@ class V8Views
   def call env
     return @app.call(env)  unless env["HTTP_ACCEPT"] =~ %r[text/html]
     status, header, body = @app.call(env.merge("HTTP_ACCEPT" => "application/json"))
-    return [status, header, body]  unless header["Content-Type"] == "application/json"
+    body = [render(body.first)]  if header["Content-Type"] =~ %r[application/json]
     header["Content-Type"] = "text/html"
-    return [status, header, render(body.first)]
+    return [status, header, body]
   end
 
   private

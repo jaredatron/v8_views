@@ -24,21 +24,21 @@ class View
   def load_helpers source
     @javascript.eval(scope_helper_source(source))
   end
-  
+
   def scope_helper_source source
-    
+
     js = V8::Context.new
     js.eval source
-    
+
     # eval the source once just to detect what functions are defined =P
     names = js.eval <<-JS
       __helpers = [];
       for (p in this) if (typeof this[p] === "function") __helpers.push(p);
       __helpers;
     JS
-    
+
     register_helpers = names.map{ |name| %[Handlebars.registerHelper("#{name}", #{name});] }.join("\n")
-    
+
     <<-JS
       (function(){
         #{source};
@@ -46,7 +46,7 @@ class View
       })();
     JS
   end
-  
+
 end
 
 v = View.new

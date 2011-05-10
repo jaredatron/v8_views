@@ -3,7 +3,11 @@ GEM
   specs:
     json (1.5.1)
     rack (1.2.2)
+    sinatra (1.1.0)
+      rack (~> 1.1)
+      tilt (~> 1.1)
     therubyracer (0.5.2)
+    tilt (1.1)
 
 PLATFORMS
   ruby
@@ -11,4 +15,5 @@ PLATFORMS
 DEPENDENCIES
   json
   rack
+  sinatra
   therubyracer (= 0.5.2)
