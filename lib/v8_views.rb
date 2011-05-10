@@ -14,22 +14,6 @@ class V8Views
   def initialize app, options={}
     @app = app
     @options = DEFAULT_OPTIONS.merge(options)
-    @context = V8::Context.new
-    @context.load MUSTACHE_PATH
-    @context['TEMPLATES'] = TemplateStore.new File.join(@options[:root], @options[:views])
-    @context.eval <<-JS
-      TEMPLATES.render = function(view){
-        var layout, template, html;
-        template = TEMPLATES.load(view._render.template);
-        html = Mustache.to_html(template, view);
-        if (view._render.layout){
-          layout = TEMPLATES.load('layouts/'+view._render.layout);
-          view.yield = html;
-          html = Mustache.to_html(layout, view)
-        }
-        return html;
-      }
-    JS
   end
 
   def call env
@@ -43,7 +27,29 @@ class V8Views
   private
 
   def render json
-    @context.eval "TEMPLATES.render(#{json});"
+    context.eval "TEMPLATES.render(#{json});"
+  end
+
+  def context
+    @context or begin
+      @context = V8::Context.new
+      @context.load MUSTACHE_PATH
+      @context['TEMPLATES'] = TemplateStore.new File.join(@options[:root], @options[:views])
+      @context.eval <<-JS
+        TEMPLATES.render = function(view){
+          var layout, template, html;
+          template = TEMPLATES.load(view._render.template);
+          html = Mustache.to_html(template, view);
+          if (view._render.layout){
+            layout = TEMPLATES.load('layouts/'+view._render.layout);
+            view.yield = html;
+            html = Mustache.to_html(layout, view)
+          }
+          return html;
+        }
+      JS
+    end
+    @context
   end
 
 end
