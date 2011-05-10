@@ -5,6 +5,7 @@ class V8Views
   class TemplateNotFoundError < StandardError; end
 
   MUSTACHE_PATH = __FILE__.sub(/\.rb$/,'/mustache.js')
+
   DEFAULT_OPTIONS = {
     :root  => File.expand_path(File.join(File.dirname(__FILE__), '..')),
     :views => 'views'
@@ -33,18 +34,16 @@ class V8Views
 
   def call env
     return @app.call(env)  unless env["HTTP_ACCEPT"] =~ %r[text/html]
-    status, header, json = @app.call(env.merge("HTTP_ACCEPT" => "application/json"))
-    html = render(json.first)
-    header.merge! "Content-Type" => "text/html"
-    [status, header, [html]]
+    status, header, body = @app.call(env.merge("HTTP_ACCEPT" => "application/json"))
+    return [status, header, body]  unless header["Content-Type"] == "application/json"
+    header["Content-Type"] = "text/html"
+    return [status, header, render(body.first)]
   end
 
   private
 
   def render json
-    @context.eval <<-JS
-      TEMPLATES.render(#{json});
-    JS
+    @context.eval "TEMPLATES.render(#{json});"
   end
 
 end
